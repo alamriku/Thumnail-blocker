@@ -1,0 +1,14 @@
+body {
+  width: 215px;
+  height: 130px;
+  margin: 0;
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  position: relative;
+}
+
+code {
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+}
