@@ -36,9 +36,8 @@ if (fileSystem.existsSync(secretsPath)) {
 var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
-    background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
-    contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'youtube.js'),
+    background: path.join(__dirname, 'src', 'pages', 'Background', 'index.ts'),
+    contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.tsx'),
 
   },
   chromeExtensionBoilerplate: {
@@ -64,10 +63,14 @@ var options = {
             loader: 'css-loader',
           },
           {
-            loader: 'sass-loader',
+            loader: 'postcss-loader',
             options: {
-              sourceMap: true,
-            },
+              postcssOptions: {
+                ident: 'postcss',
+                plugins: ["tailwindcss", "autoprefixer"]
+              }
+            }
+
           },
         ],
       },
@@ -157,13 +160,25 @@ var options = {
         },
       ],
     }),
-
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
-      filename: 'popup.html',
-      chunks: ['popup'],
-      cache: false,
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets/img/icon-16.png',
+          to: path.join(__dirname, 'build'),
+          force: true,
+        },
+      ],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets/img/icon-64.png',
+          to: path.join(__dirname, 'build'),
+          force: true,
+        },
+      ],
+    }),
+
   ],
   infrastructureLogging: {
     level: 'info',

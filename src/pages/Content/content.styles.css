@@ -1,3 +1,34 @@
+.style-scope .ytd-logo {
+    box-sizing: content-box !important;
+}
+
 .youtube_thumbnail_hide {
     display: none !important;
+}
+
+.toggle_button {
+    font-family: "Roboto","Arial",sans-serif;
+    font-size: 1.6rem;
+    line-height: 2.2rem;
+    font-weight: 500;
+    max-height: 4.4rem;
+
+    -webkit-line-clamp: 2;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+
+/* Toggle A */
+input:checked ~ .dot {
+    transform: translateX(100%);
+    background-color: #48bb78;
+}
+
+/* Toggle B */
+input:checked ~ .dot {
+    transform: translateX(100%);
+    background-color: #48bb78;
 }
