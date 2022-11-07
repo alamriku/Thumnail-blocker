@@ -4,6 +4,8 @@
 
 .youtube_thumbnail_hide {
     display: none !important;
+    opacity: 0;
+    transition: all .5s ease-in-out;
 }
 
 .toggle_button {

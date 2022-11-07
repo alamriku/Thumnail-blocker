@@ -21,11 +21,25 @@ export const Youtube = () => {
         return BLOCKER_STATUS.toggleDefaultValue;
     }
     let [blockerToggle, setBlockerToggle] = useState(getToggleValue());
+
     const addHideClass = (thumbNailNodes: HTMLElement[]) => {
         thumbNailNodes.forEach(item => {
             let img = item.querySelector('img');
             if (img) {
-                img.classList.add('youtube_thumbnail_hide');
+                //img.classList.add('youtube_thumbnail_hide');
+                img.classList.remove( 'opacity-1');
+                img.classList.add('transition-opacity','duration-1000', 'ease-out', 'opacity-0');
+            }
+        })
+    }
+
+    const removeHideClass = (thumbNailNodes: HTMLElement[]) => {
+        thumbNailNodes.forEach(item => {
+            let img = item.querySelector('img');
+            if (img) {
+                //img.classList.remove('youtube_thumbnail_hide');
+                img.classList.remove( 'opacity-0');
+                img.classList.add( 'opacity-1');
             }
         })
     }
@@ -40,13 +54,22 @@ export const Youtube = () => {
             console.log(e);
         }
     }
-
+    const showThumbnails = () => {
+        try {
+            let thumbNailNodes: HTMLElement[] = Array.from(getThumbnailImages());
+            if (thumbNailNodes) {
+                removeHideClass(thumbNailNodes)
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
     const waitingForExpectedNode = (params: IYoutubeObserverParam) => {
         let youtubeThumbnailObserver = new MutationObserver(function (mutations) {
             let el: Element = document.querySelector(params.selector)!;
             if (el) {
-                youtubeThumbnailObserver.disconnect();
                 params.done(el);
+                youtubeThumbnailObserver.disconnect();
             }
         });
         youtubeThumbnailObserver.observe(params.parent || document, {
@@ -71,27 +94,29 @@ export const Youtube = () => {
         return document.querySelectorAll<HTMLElement>('ytd-thumbnail.style-scope.ytd-rich-grid-media');
     }
 
-    const listenOnScrolling = () => {
+    const listenOnScrolling = (contain:string) => {
         window.addEventListener('scroll', function () {
-            observeThumbnail();
+            console.log(blockerToggle);
+            if (BLOCKER_STATUS.thumbNailEnabled === contain) {
+                observeThumbnail();
+            }
         })
     }
     const initBlocker = () => {
         try {
-            console.log(localStorage.getItem(BLOCKER_STATUS.toggleName));
             if (!localStorage.getItem(BLOCKER_STATUS.toggleName)) {
                 setToggleValue(BLOCKER_STATUS.thumbNailEnabled)
                 setTimeout(function () {
                     observeThumbnail();
                     hideThumbnailImages();
-                    listenOnScrolling();
+                    listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
                 }, 500)
             }
             if (localStorage.getItem(BLOCKER_STATUS.toggleName) == BLOCKER_STATUS.thumbNailEnabled) {
                 setTimeout(function () {
                     observeThumbnail();
                     hideThumbnailImages();
-                    listenOnScrolling();
+                    listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
                 }, 500)
             }
         } catch (e) {
@@ -105,22 +130,25 @@ export const Youtube = () => {
 
     const handleThumbBlockerToggle = async (event: React.FormEvent<HTMLInputElement>) => {
         const target = event.target as HTMLInputElement;
-        console.log(target.checked)
         if (target.checked) {
             setBlockerToggle(BLOCKER_STATUS.thumbNailEnabled)
             setToggleValue(BLOCKER_STATUS.thumbNailEnabled)
+            listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
+            hideThumbnailImages();
         }
         if (!target.checked) {
-            setBlockerToggle(BLOCKER_STATUS.thumbNailDisabled)
-            setToggleValue(BLOCKER_STATUS.thumbNailDisabled)
+            setBlockerToggle(BLOCKER_STATUS.thumbNailDisabled);
+            setToggleValue(BLOCKER_STATUS.thumbNailDisabled);
+            listenOnScrolling(BLOCKER_STATUS.thumbNailDisabled);
+            showThumbnails();
         }
         await sleep(300)
-        console.log('wating')
-        window.location.reload();
+        //window.location.reload();
     }
 
     return (
-        <>
+        <div className="flex items-center">
+            <span className="block items-center text-gray-700 font-medium mr-2"> Thumb Blocker </span>
             <label htmlFor="thumbBLockerToggle" className="flex items-center cursor-pointer">
                 <div className="relative">
                     <input type="checkbox" id="thumbBLockerToggle" className="sr-only"
@@ -130,7 +158,7 @@ export const Youtube = () => {
                         <div className="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
                 </div>
                 <div className="ml-3 text-gray-700 font-medium">
-                    {blockerToggle === BLOCKER_STATUS.thumbNailEnabled
+                   {blockerToggle === BLOCKER_STATUS.thumbNailEnabled
                         ? BLOCKER_STATUS.enabledDisplayText
                         : BLOCKER_STATUS.disabledDisplayText
                     }
@@ -141,7 +169,7 @@ export const Youtube = () => {
             {/*    Enabled*/}
             {/*</button>*/}
 
-        </>
+        </div>
     )
 }
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Thumb blocker",
-  "description": "Block thumbnails on youtube, and get your attention back from the enticing thumbnail in this noisy world.",
+  "description": "Block thumbnails on youtube, and get your attention back from the enticing thumbnail in this noisy world. Block thumbnail only on youtube home page",
   "background": { "service_worker": "background.bundle.js" },
   "icons": {
     "16": "icon-16.png",
