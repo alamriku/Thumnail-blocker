@@ -1,7 +1,6 @@
-.style-scope .ytd-logo {
+.style-scope .ytd-logo, .yt-spec-icon-badge-shape__badge {
     box-sizing: content-box !important;
 }
-
 .youtube_thumbnail_hide {
     display: none !important;
     opacity: 0;

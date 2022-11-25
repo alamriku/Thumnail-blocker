@@ -1,5 +1,5 @@
 import '../../Content/content.styles.css';
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {BLOCKER_STATUS} from "../../constant";
 import {sleep} from "../../helper";
 
@@ -67,6 +67,7 @@ export const Youtube = () => {
     const waitingForExpectedNode = (params: IYoutubeObserverParam) => {
         let youtubeThumbnailObserver = new MutationObserver(function (mutations) {
             let el: Element = document.querySelector(params.selector)!;
+            console.log('test');
             if (el) {
                 params.done(el);
                 youtubeThumbnailObserver.disconnect();
@@ -87,17 +88,16 @@ export const Youtube = () => {
                 hideThumbnailImages();
             }
         });
-
     }
 
     const getThumbnailImages = () => {
         return document.querySelectorAll<HTMLElement>('ytd-thumbnail.style-scope.ytd-rich-grid-media');
     }
 
+
     const listenOnScrolling = (contain:string) => {
-        window.addEventListener('scroll', function () {
-            console.log(blockerToggle);
-            if (BLOCKER_STATUS.thumbNailEnabled === contain) {
+        document.addEventListener('scroll', function () {
+            if (BLOCKER_STATUS.thumbNailEnabled === localStorage.getItem(BLOCKER_STATUS.toggleName)) {
                 observeThumbnail();
             }
         })
