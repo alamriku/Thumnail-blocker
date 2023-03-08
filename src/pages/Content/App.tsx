@@ -9,25 +9,3 @@ export const App = () => {
         </div>
     )
 }
-// let myContainer = document.createElement('div');
-// myContainer.className = 'youtube_thumbnail_blocker';
-// let target: any
-// const addEnableDisableButton = () => {
-//     target = document.querySelector('body');
-//     if (target) {
-//         target.appendChild(myContainer);
-//         target.insertAdjacentElement('afterend', myContainer)
-//         render(
-//             <Content />,
-//             window.document.querySelector('.container__MoveOn_AddTo_cart')
-//         );
-//     }
-// }
-//
-// switch (getStoreSlug()) {
-//     case MOVEON_SUPPORTED_STORE.ALIEXPRESS:
-//         addEnableDisableButton()
-//         break
-//     default:
-//         break;
-// }

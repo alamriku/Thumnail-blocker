@@ -54,6 +54,18 @@ export const Youtube = () => {
             console.log(e);
         }
     }
+
+    const hideShortImages = () => {
+        try {
+            let thumbNailNodes: HTMLElement[] = Array.from(getShortImages());
+            if (thumbNailNodes) {
+                addHideClass(thumbNailNodes)
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     const showThumbnails = () => {
         try {
             let thumbNailNodes: HTMLElement[] = Array.from(getThumbnailImages());
@@ -67,7 +79,6 @@ export const Youtube = () => {
     const waitingForExpectedNode = (params: IYoutubeObserverParam) => {
         let youtubeThumbnailObserver = new MutationObserver(function (mutations) {
             let el: Element = document.querySelector(params.selector)!;
-            console.log('test');
             if (el) {
                 params.done(el);
                 youtubeThumbnailObserver.disconnect();
@@ -90,10 +101,24 @@ export const Youtube = () => {
         });
     }
 
+    const observeShorts = () => {
+        waitingForExpectedNode({
+            selector: 'ytd-thumbnail.style-scope.ytd-rich-grid-slim-media',
+            parent: document,
+            recursive: false,
+            done: function (el: Element) {
+                hideShortImages();
+            }
+        });
+    }
+
     const getThumbnailImages = () => {
         return document.querySelectorAll<HTMLElement>('ytd-thumbnail.style-scope.ytd-rich-grid-media');
     }
 
+    const getShortImages = () => {
+        return document.querySelectorAll<HTMLElement>('ytd-thumbnail.style-scope.ytd-rich-grid-slim-media');
+    }
 
     const listenOnScrolling = (contain:string) => {
         document.addEventListener('scroll', function () {
@@ -102,6 +127,14 @@ export const Youtube = () => {
             }
         })
     }
+
+    const hideShorts = async () => {
+        await sleep(900);
+        const click = new Event("click", { bubbles: true, cancelable: false });
+        const close = document.querySelector('[aria-label = "Not interested"]');
+        close && close.dispatchEvent(click)
+    }
+
     const initBlocker = () => {
         try {
             if (!localStorage.getItem(BLOCKER_STATUS.toggleName)) {
@@ -109,6 +142,8 @@ export const Youtube = () => {
                 setTimeout(function () {
                     observeThumbnail();
                     hideThumbnailImages();
+                    hideShorts();
+                    observeShorts();
                     listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
                 }, 500)
             }
@@ -116,6 +151,8 @@ export const Youtube = () => {
                 setTimeout(function () {
                     observeThumbnail();
                     hideThumbnailImages();
+                    hideShorts();
+                    observeShorts();
                     listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
                 }, 500)
             }
@@ -135,6 +172,8 @@ export const Youtube = () => {
             setToggleValue(BLOCKER_STATUS.thumbNailEnabled)
             listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
             hideThumbnailImages();
+            hideShorts();
+            observeShorts();
         }
         if (!target.checked) {
             setBlockerToggle(BLOCKER_STATUS.thumbNailDisabled);
@@ -143,7 +182,6 @@ export const Youtube = () => {
             showThumbnails();
         }
         await sleep(300)
-        //window.location.reload();
     }
 
     return (

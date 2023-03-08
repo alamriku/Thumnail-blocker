@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import {App} from "./App";
+import {sleep} from "../helper";
 
 const bindReactInstance = () => {
 let youtubeContainer = document.createElement('div');
@@ -15,7 +16,6 @@ let point:Element = document.querySelector('body #page-manager')!
 const observeBody = () => {
     let youtubeBodyObserver = new MutationObserver(function (mutations) {
         let el: any = document.querySelector('#thumbNailBlockerRoot')!;
-       console.log('test,body observer')
         if (window.location.href.indexOf('watch?v') === -1 && el) {
            el.style.display = 'block'
        }
@@ -28,11 +28,18 @@ const observeBody = () => {
         childList: true,
     });
 }
+
 const initThumbBlocker = () => {
     if (window.location.href.indexOf('watch?v') === -1) {
         bindReactInstance();
         observeBody();
     }
+
+    document.querySelector("#logo-icon")?.addEventListener('click', async function(){
+        await sleep(1200)
+        bindReactInstance();
+        observeBody();
+    });
 }
 
 window.onload = initThumbBlocker
