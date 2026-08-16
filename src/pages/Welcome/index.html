@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Welcome to Thumb Blocker</title>
+    <style>
+        :root {
+            --red: #e53935;
+            --bg: #0f0f0f;
+            --card: #1c1c1c;
+            --text: #f1f1f1;
+            --sub: #aaaaaa;
+            --line: #333333;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; height: 100%; }
+        body {
+            font-family: "Roboto", "Segoe UI", Arial, sans-serif;
+            background: radial-gradient(1200px 600px at 80% -10%, #2a1414 0%, var(--bg) 60%);
+            color: var(--text);
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Arrow pointing up to the toolbar puzzle icon (top-right). */
+        /* In-card illustration of the pin flow (reliable on any toolbar). */
+        .guide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 24px;
+            padding: 20px 16px;
+            background: #141414;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+        .tbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 320px;
+            padding: 7px 10px;
+            background: #2b2b2b;
+            border-radius: 999px;
+        }
+        .tbar-omni {
+            flex: 1 1 auto;
+            height: 16px;
+            border-radius: 999px;
+            background: #3d3d3d;
+        }
+        .tbar-ic {
+            flex: 0 0 auto;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tbar-ic.dot { background: #3d3d3d; }
+        .tbar-ic.avatar { background: #4a4a4a; }
+        .puzzle-hl {
+            color: #fff;
+            background: rgba(229, 57, 53, 0.18);
+            box-shadow: 0 0 0 2px var(--red);
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+        .puzzle-hl svg { width: 16px; height: 16px; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 2px var(--red); }
+            50% { box-shadow: 0 0 0 5px rgba(229, 57, 53, 0.35); }
+        }
+
+        .guide-down {
+            width: 26px;
+            height: 26px;
+            color: var(--red);
+            animation: bob 1.3s ease-in-out infinite;
+        }
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+
+        .menu {
+            width: 100%;
+            max-width: 260px;
+            background: #2b2b2b;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+        }
+        .menu-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--sub);
+            margin: 2px 4px 8px;
+        }
+        .menu-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            background: #353535;
+        }
+        .menu-ic {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            flex: 0 0 auto;
+        }
+        .menu-name {
+            flex: 1 1 auto;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .menu-pin {
+            flex: 0 0 auto;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--red);
+            background: rgba(229, 57, 53, 0.18);
+            box-shadow: 0 0 0 2px var(--red);
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+        .menu-pin svg { width: 16px; height: 16px; }
+
+        /* Browser-specific bits: default to Chrome, flip when body.ff is set. */
+        .only-ff { display: none; }
+        body.ff .only-cr { display: none; }
+        body.ff div.only-ff { display: block; }
+        body.ff .menu-pin.only-ff { display: inline-flex; }
+
+        .card {
+            width: 100%;
+            max-width: 560px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 36px 36px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .brand img { width: 56px; height: 56px; border-radius: 14px; }
+        .brand h1 { font-size: 22px; margin: 0; line-height: 1.2; }
+        .brand p { margin: 2px 0 0; font-size: 13px; color: var(--sub); }
+
+        h2 { font-size: 17px; margin: 0 0 16px; }
+
+        .steps { list-style: none; margin: 0 0 24px; padding: 0; }
+        .steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 0;
+            border-top: 1px solid var(--line);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .steps li:first-child { border-top: none; }
+        .num {
+            flex: 0 0 auto;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--red);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .steps b { color: #fff; }
+        .puzzle {
+            display: inline-flex;
+            vertical-align: -5px;
+            width: 20px;
+            height: 20px;
+            color: var(--sub);
+        }
+
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn {
+            flex: 1 1 auto;
+            text-align: center;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+        .btn-primary { background: var(--red); color: #fff; }
+        .btn-primary:hover { background: #c62828; }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--line);
+        }
+        .btn-ghost:hover { background: #262626; }
+
+        .foot {
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--sub);
+            text-align: center;
+        }
+        .foot a { color: var(--red); text-decoration: none; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body { padding: 24px 14px; align-items: flex-start; }
+            .card { padding: 24px 20px; border-radius: 16px; }
+            .brand h1 { font-size: 19px; }
+            .actions { flex-direction: column; }
+            .btn { width: 100%; }
+            .guide { padding: 16px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="brand">
+            <img id="brand-icon" alt="Thumb Blocker"/>
+            <div>
+                <h1>You're all set 🎉</h1>
+                <p>Thumb Blocker is installed. Pin it so it's always one click away.</p>
+            </div>
+        </div>
+
+        <h2>Pin Thumb Blocker to your toolbar</h2>
+
+        <!-- Self-contained illustration of the real Chrome flow. -->
+        <div class="guide" aria-hidden="true">
+            <div class="tbar">
+                <span class="tbar-omni"></span>
+                <span class="tbar-ic dot"></span>
+                <span class="tbar-ic puzzle-hl">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7h3V5a2 2 0 1 1 4 0v2h3v3h2a2 2 0 1 1 0 4h-2v3H4z"/>
+                    </svg>
+                </span>
+                <span class="tbar-ic avatar"></span>
+            </div>
+
+            <svg class="guide-down" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4 V18"/>
+                <path d="M6 12 L12 18 L18 12"/>
+            </svg>
+
+            <div class="menu">
+                <div class="menu-title">Extensions</div>
+                <div class="menu-row">
+                    <img class="menu-ic" id="menu-icon" alt=""/>
+                    <span class="menu-name">Thumb Blocker</span>
+                    <!-- Chrome: a pin icon sits directly in the row -->
+                    <span class="menu-pin only-cr" title="Pin">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 3l5 5-1.4 1.4-.9-.9-3.3 3.3.9 3.6L15 20l-4-4-4.6 4.6L5 19.2 9.6 15l-4-4 1.9-1.9 3.6.9L14.5 6.7l-.9-.9z"/>
+                        </svg>
+                    </span>
+                    <!-- Firefox: a gear opens a menu with "Pin to Toolbar" -->
+                    <span class="menu-pin only-ff" title="Settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <ol class="steps">
+            <li>
+                <span class="num">1</span>
+                <div>Click the puzzle-piece
+                    <svg class="puzzle" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 7h3V5a2 2 0 1 1 4 0v2h3v3h2a2 2 0 1 1 0 4h-2v3H4z"/>
+                    </svg>
+                    <b>Extensions</b> icon at the top-right of your browser.
+                </div>
+            </li>
+            <li>
+                <span class="num">2</span>
+                <div>Find <b>Thumb Blocker</b> in the list.</div>
+            </li>
+            <li>
+                <span class="num">3</span>
+                <div class="only-cr">Click the <b>pin 📌</b> icon next to it — now it lives in your toolbar.</div>
+                <div class="only-ff">Click the <b>gear ⚙</b> next to it, then choose <b>Pin to Toolbar</b>.</div>
+            </li>
+        </ol>
+
+        <div class="actions">
+            <a class="btn btn-primary" href="https://www.youtube.com" target="_blank" rel="noopener">
+                Open YouTube
+            </a>
+            <button class="btn btn-ghost" id="close-btn" type="button">Got it</button>
+        </div>
+
+        <p class="foot">
+            Enjoying it later?
+            <a id="review-link" href="#" target="_blank" rel="noopener">Leave a 5-star review ★</a>
+        </p>
+    </main>
+
+</body>
+</html>

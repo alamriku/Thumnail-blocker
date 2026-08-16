@@ -1,3 +1,168 @@
-.youtube_thumbnail_hide {
+.style-scope .ytd-logo, .yt-spec-icon-badge-shape__badge {
+    box-sizing: content-box !important;
+}
+
+/*
+ * Thumbnail hiding is CSS-driven and gated behind `html.thumb-blocker-on`.
+ * The content script only toggles that one class on <html> — the browser's
+ * style engine then hides every current AND future/lazy thumbnail with no
+ * per-node JS, and it survives YouTube's SPA navigation automatically.
+ *
+ * We fade the image with `opacity: 0` (paint-only, no reflow) instead of
+ * `display: none`, so:
+ *   - the grid keeps its layout and never collapses,
+ *   - the fade is animatable (unlike `visibility`),
+ *   - the thumbnail area stays hoverable, so YouTube's hover-preview video
+ *     still plays and is fully visible ("hover to watch").
+ * The hover-preview player is deliberately NOT hidden.
+ */
+
+/* ---- base: make the fade animatable in both directions ---- */
+ytd-thumbnail img,
+ytd-playlist-thumbnail img,
+yt-image.ytd-thumbnail img,
+yt-thumbnail-view-model img,
+yt-collection-thumbnail-view-model img,
+.ytThumbnailViewModelImage img,
+ytm-shorts-lockup-view-model img {
+    transition: opacity .3s ease-in-out;
+}
+
+/* ---- the image itself: faded out, keeps its layout box ---- */
+html.thumb-blocker-on ytd-thumbnail img,
+html.thumb-blocker-on ytd-playlist-thumbnail img,
+html.thumb-blocker-on yt-image.ytd-thumbnail img,
+/* new (2024+) "view model" thumbnails — what broke the old selector */
+html.thumb-blocker-on yt-thumbnail-view-model img,
+html.thumb-blocker-on yt-collection-thumbnail-view-model img,
+html.thumb-blocker-on .ytThumbnailViewModelImage img,
+html.thumb-blocker-on ytm-shorts-lockup-view-model img {
+    opacity: 0 !important;
+}
+
+/* ---- give the empty box a neutral placeholder ---- */
+html.thumb-blocker-on ytd-thumbnail,
+html.thumb-blocker-on yt-thumbnail-view-model,
+html.thumb-blocker-on yt-collection-thumbnail-view-model,
+html.thumb-blocker-on .ytThumbnailViewModelImage {
+    background-color: #181818 !important;
+}
+
+/* =========================================================================
+ * Masthead toggle pill
+ * Mounted as a real flex child inside the YouTube top bar, so it flows next
+ * to Create/notifications instead of floating over them. Colours are keyed
+ * off YouTube's html[dark] attribute so it adapts to light/dark themes.
+ * ========================================================================= */
+#thumbNailBlockerRoot {
+    display: flex;
+    align-items: center;
+}
+/* Responsive collapse (classes set from index.tsx by measuring masthead room):
+ *   full     → icon + label + switch
+ *   .tb-compact → icon + switch (no label)
+ *   .tb-mini    → icon only, round button (still toggles)
+ *   .tb-hide    → hidden (tiny mobile → use the popup)                        */
+#thumbNailBlockerRoot.tb-hide {
     display: none !important;
+}
+#thumbNailBlockerRoot.tb-compact .tb-label {
+    display: none;
+}
+#thumbNailBlockerRoot.tb-mini .tb-label,
+#thumbNailBlockerRoot.tb-mini .tb-switch {
+    display: none;
+}
+#thumbNailBlockerRoot.tb-mini .tb-toggle {
+    width: 32px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.tb-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 16px;
+    cursor: pointer;
+    box-sizing: border-box;
+    font-family: "Roboto", "Arial", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 18px;
+    white-space: nowrap;
+    user-select: none;
+    /* Light theme (default). Dark theme handled via html[dark] below —
+       YouTube's --yt-spec-* vars don't reliably inherit into injected nodes. */
+    color: #0f0f0f;
+    background: rgba(0, 0, 0, 0.05);
+    transition: background 0.2s ease;
+}
+.tb-toggle:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+.tb-toggle:focus-visible {
+    outline: 2px solid #3ea6ff;
+    outline-offset: 2px;
+}
+
+.tb-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    color: #606060;
+}
+.tb-toggle.is-on .tb-icon {
+    color: #0f0f0f;
+}
+
+.tb-label {
+    flex: 0 0 auto;
+}
+
+/* Dark theme — YouTube sets the `dark` attribute on <html>. */
+html[dark] .tb-toggle {
+    color: #f1f1f1;
+    background: rgba(255, 255, 255, 0.1);
+}
+html[dark] .tb-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+html[dark] .tb-icon {
+    color: #aaaaaa;
+}
+html[dark] .tb-toggle.is-on .tb-icon {
+    color: #f1f1f1;
+}
+
+/* the switch */
+.tb-switch {
+    position: relative;
+    width: 30px;
+    height: 18px;
+    flex: 0 0 auto;
+    border-radius: 9px;
+    background: #909090;
+    transition: background 0.2s ease;
+}
+.tb-toggle.is-on .tb-switch {
+    background: #2ba640; /* readable green on both themes */
+}
+.tb-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease;
+}
+.tb-toggle.is-on .tb-knob {
+    transform: translateX(12px);
 }
