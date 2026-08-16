@@ -5,6 +5,7 @@
 Hide YouTube thumbnails so you choose what to watch by **title**, not by clickbait imagery. A toggle sits right in the YouTube top bar — flip it any time.
 
 ### 👉 [Install from the Chrome Web Store](https://chromewebstore.google.com/detail/thumb-blocker/anhgkgicmobhfkigcljmdhpkigfcplam)
+### ⭐ [Leave a 5-star review](https://chromewebstore.google.com/detail/thumb-blocker-hide-youtub/anhgkgicmobhfkigcljmdhpkigfcplam/reviews)
 ### 🦊 Firefox Add-on — _coming soon (submitted to AMO)_
 
 Same code, two stores. See [Building for Firefox](#building-for-firefox).

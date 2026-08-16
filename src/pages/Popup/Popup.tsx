@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {BLOCKER_STATUS} from "../constant";
+import {BLOCKER_STATUS, reviewUrl} from "../constant";
 import {isEnabled, readState, subscribe, writeState} from "../state";
 import "./popup.css";
 
@@ -65,6 +65,15 @@ export const Popup = () => {
                 Applies to all YouTube tabs. There's also a quick toggle in the
                 YouTube top bar on wider screens.
             </div>
+
+            <a
+                className="pp-rate"
+                href={reviewUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Enjoying Thumb Blocker? Leave a 5-star review ★
+            </a>
         </div>
     );
 };

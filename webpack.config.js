@@ -46,6 +46,7 @@ var options = {
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.ts'),
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.tsx'),
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.tsx'),
+    welcome: path.join(__dirname, 'src', 'pages', 'Welcome', 'index.ts'),
 
   },
   chromeExtensionBoilerplate: {
@@ -154,6 +155,12 @@ var options = {
       template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
       filename: 'popup.html',
       chunks: ['popup'],
+      cache: false,
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'pages', 'Welcome', 'index.html'),
+      filename: 'welcome.html',
+      chunks: ['welcome'],
       cache: false,
     }),
     new CopyWebpackPlugin({

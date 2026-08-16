@@ -125,3 +125,19 @@ body {
     line-height: 15px;
     color: var(--pp-sub);
 }
+
+.pp-rate {
+    display: block;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--pp-row);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    color: var(--pp-sub);
+    transition: color 0.15s ease;
+}
+.pp-rate:hover {
+    color: #e53935;
+}
