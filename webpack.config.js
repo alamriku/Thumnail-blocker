@@ -9,6 +9,13 @@ var { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const ASSET_PATH = process.env.ASSET_PATH || '/';
 
+// Build target: 'chrome' (default) or 'firefox'. Selects manifest + output dir.
+const TARGET = process.env.TARGET === 'firefox' ? 'firefox' : 'chrome';
+const OUTPUT_DIR = TARGET === 'firefox' ? 'build-firefox' : 'build';
+const MANIFEST_FILE =
+  TARGET === 'firefox' ? 'src/manifest.firefox.json' : 'src/manifest.json';
+const buildPath = path.resolve(__dirname, OUTPUT_DIR);
+
 var alias = {
   'react-dom': '@hot-loader/react-dom',
 };
@@ -38,6 +45,7 @@ var options = {
   entry: {
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.ts'),
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.tsx'),
+    popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.tsx'),
 
   },
   chromeExtensionBoilerplate: {
@@ -45,7 +53,7 @@ var options = {
   },
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'build'),
+    path: buildPath,
     clean: true,
     publicPath: ASSET_PATH,
   },
@@ -117,8 +125,8 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/manifest.json',
-          to: path.join(__dirname, 'build'),
+          from: MANIFEST_FILE,
+          to: path.join(buildPath, 'manifest.json'),
           force: true,
           transform: function (content, path) {
             // generates the manifest file using the package.json informations
@@ -137,16 +145,22 @@ var options = {
       patterns: [
         {
           from: 'src/pages/Content/content.styles.css',
-          to: path.join(__dirname, 'build'),
+          to: buildPath,
           force: true,
         },
       ],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
+      filename: 'popup.html',
+      chunks: ['popup'],
+      cache: false,
     }),
     new CopyWebpackPlugin({
       patterns: [
         {
           from: 'src/assets/img/icon-128.png',
-          to: path.join(__dirname, 'build'),
+          to: buildPath,
           force: true,
         },
       ],
@@ -155,7 +169,7 @@ var options = {
       patterns: [
         {
           from: 'src/assets/img/icon-34.png',
-          to: path.join(__dirname, 'build'),
+          to: buildPath,
           force: true,
         },
       ],
@@ -164,7 +178,7 @@ var options = {
       patterns: [
         {
           from: 'src/assets/img/icon-16.png',
-          to: path.join(__dirname, 'build'),
+          to: buildPath,
           force: true,
         },
       ],
@@ -173,7 +187,16 @@ var options = {
       patterns: [
         {
           from: 'src/assets/img/icon-64.png',
-          to: path.join(__dirname, 'build'),
+          to: buildPath,
+          force: true,
+        },
+      ],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets/img/icon-48.png',
+          to: buildPath,
           force: true,
         },
       ],

@@ -1,213 +1,81 @@
 import '../../Content/content.styles.css';
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {BLOCKER_STATUS} from "../../constant";
-import {sleep} from "../../helper";
-
-interface IYoutubeObserverParam {
-    selector: string,
-    parent: Document,
-    recursive: boolean,
-    done: (el: Element) => void
-}
+import {setBlockerClass, sleep} from "../../helper";
+import {isEnabled, readCached, readState, subscribe, writeState} from "../../state";
 
 export const Youtube = () => {
-    const setToggleValue = (value:string) => {
-        localStorage.setItem(BLOCKER_STATUS.toggleName, value)
-    }
-    const getToggleValue = ():string => {
-        if (localStorage.getItem(BLOCKER_STATUS.toggleName)) {
-            return localStorage.getItem(BLOCKER_STATUS.toggleName)!;
-        }
-        return BLOCKER_STATUS.toggleDefaultValue;
-    }
-    let [blockerToggle, setBlockerToggle] = useState(getToggleValue());
+    const [state, setState] = useState<string>(readCached());
+    const on = isEnabled(state);
 
-    const addHideClass = (thumbNailNodes: HTMLElement[]) => {
-        thumbNailNodes.forEach(item => {
-            let img = item.querySelector('img');
-            if (img) {
-                //img.classList.add('youtube_thumbnail_hide');
-                img.classList.remove( 'opacity-1');
-                img.classList.add('transition-opacity','duration-1000', 'ease-out', 'opacity-0');
-            }
-        })
-    }
-
-    const removeHideClass = (thumbNailNodes: HTMLElement[]) => {
-        thumbNailNodes.forEach(item => {
-            let img = item.querySelector('img');
-            if (img) {
-                //img.classList.remove('youtube_thumbnail_hide');
-                img.classList.remove( 'opacity-0');
-                img.classList.add( 'opacity-1');
-            }
-        })
-    }
-
-    const hideThumbnailImages = () => {
-        try {
-            let thumbNailNodes: HTMLElement[] = Array.from(getThumbnailImages());
-            if (thumbNailNodes) {
-                addHideClass(thumbNailNodes)
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    const hideShortImages = () => {
-        try {
-            let thumbNailNodes: HTMLElement[] = Array.from(getShortImages());
-            if (thumbNailNodes) {
-                addHideClass(thumbNailNodes)
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    const showThumbnails = () => {
-        try {
-            let thumbNailNodes: HTMLElement[] = Array.from(getThumbnailImages());
-            if (thumbNailNodes) {
-                removeHideClass(thumbNailNodes)
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
-    const waitingForExpectedNode = (params: IYoutubeObserverParam) => {
-        let youtubeThumbnailObserver = new MutationObserver(function (mutations) {
-            let el: Element = document.querySelector(params.selector)!;
-            if (el) {
-                params.done(el);
-                youtubeThumbnailObserver.disconnect();
-            }
-        });
-        youtubeThumbnailObserver.observe(params.parent || document, {
-            subtree: true,
-            childList: true,
-        });
-    }
-
-    const observeThumbnail = () => {
-        waitingForExpectedNode({
-            selector: 'ytd-thumbnail.style-scope.ytd-rich-grid-media',
-            parent: document,
-            recursive: false,
-            done: function (el: Element) {
-                hideThumbnailImages();
-            }
-        });
-    }
-
-    const observeShorts = () => {
-        waitingForExpectedNode({
-            selector: 'ytd-thumbnail.style-scope.ytd-rich-grid-slim-media',
-            parent: document,
-            recursive: false,
-            done: function (el: Element) {
-                hideShortImages();
-            }
-        });
-    }
-
-    const getThumbnailImages = () => {
-        return document.querySelectorAll<HTMLElement>('ytd-thumbnail.style-scope.ytd-rich-grid-media');
-    }
-
-    const getShortImages = () => {
-        return document.querySelectorAll<HTMLElement>('ytd-thumbnail.style-scope.ytd-rich-grid-slim-media');
-    }
-
-    const listenOnScrolling = (contain:string) => {
-        document.addEventListener('scroll', function () {
-            if (BLOCKER_STATUS.thumbNailEnabled === localStorage.getItem(BLOCKER_STATUS.toggleName)) {
-                observeThumbnail();
-            }
-        })
-    }
-
+    // Dismiss the Shorts shelf (unchanged behaviour).
     const hideShorts = async () => {
         await sleep(900);
-        const click = new Event("click", { bubbles: true, cancelable: false });
+        const click = new Event("click", {bubbles: true, cancelable: false});
         const close = document.querySelector('[aria-label = "Not interested"]');
         close && close.dispatchEvent(click)
     }
 
-    const initBlocker = () => {
-        try {
-            if (!localStorage.getItem(BLOCKER_STATUS.toggleName)) {
-                setToggleValue(BLOCKER_STATUS.thumbNailEnabled)
-                setTimeout(function () {
-                    observeThumbnail();
-                    hideThumbnailImages();
-                    hideShorts();
-                    observeShorts();
-                    listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
-                }, 500)
-            }
-            if (localStorage.getItem(BLOCKER_STATUS.toggleName) == BLOCKER_STATUS.thumbNailEnabled) {
-                setTimeout(function () {
-                    observeThumbnail();
-                    hideThumbnailImages();
-                    hideShorts();
-                    observeShorts();
-                    listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
-                }, 500)
-            }
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
     useEffect(() => {
-        initBlocker()
+        // Reconcile with the authoritative store, and stay in sync with the
+        // popup (or another tab) toggling.
+        readState(setState);
+        subscribe(setState);
     }, [])
 
-    const handleThumbBlockerToggle = async (event: React.FormEvent<HTMLInputElement>) => {
-        const target = event.target as HTMLInputElement;
-        if (target.checked) {
-            setBlockerToggle(BLOCKER_STATUS.thumbNailEnabled)
-            setToggleValue(BLOCKER_STATUS.thumbNailEnabled)
-            listenOnScrolling(BLOCKER_STATUS.thumbNailEnabled);
-            hideThumbnailImages();
+    const toggle = async () => {
+        const next = on
+            ? BLOCKER_STATUS.thumbNailDisabled
+            : BLOCKER_STATUS.thumbNailEnabled;
+        setState(next);
+        writeState(next);
+        setBlockerClass(next === BLOCKER_STATUS.thumbNailEnabled); // instant, no wait
+        if (next === BLOCKER_STATUS.thumbNailEnabled) {
             hideShorts();
-            observeShorts();
-        }
-        if (!target.checked) {
-            setBlockerToggle(BLOCKER_STATUS.thumbNailDisabled);
-            setToggleValue(BLOCKER_STATUS.thumbNailDisabled);
-            listenOnScrolling(BLOCKER_STATUS.thumbNailDisabled);
-            showThumbnails();
         }
         await sleep(300)
     }
 
-    return (
-        <div className="flex items-center">
-            <span className="block items-center text-gray-700 font-medium mr-2"> Thumb Blocker </span>
-            <label htmlFor="thumbBLockerToggle" className="flex items-center cursor-pointer">
-                <div className="relative">
-                    <input type="checkbox" id="thumbBLockerToggle" className="sr-only"
-                            checked={blockerToggle === BLOCKER_STATUS.thumbNailEnabled}
-                           onChange={handleThumbBlockerToggle}/>
-                        <div className="block bg-gray-600 w-14 h-8 rounded-full"></div>
-                        <div className="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
-                </div>
-                <div className="ml-3 text-gray-700 font-medium">
-                   {blockerToggle === BLOCKER_STATUS.thumbNailEnabled
-                        ? BLOCKER_STATUS.enabledDisplayText
-                        : BLOCKER_STATUS.disabledDisplayText
-                    }
-                </div>
-            </label>
-            {/*<button type="button"*/}
-            {/*        className="z-1000 toggle_button fixed top-1.5 right-80 inline-flex items-center px-6 py-6 border border-transparent text-lg font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Button*/}
-            {/*    Enabled*/}
-            {/*</button>*/}
+    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            toggle();
+        }
+    }
 
+    return (
+        <div
+            className={`tb-toggle ${on ? 'is-on' : ''}`}
+            role="switch"
+            aria-checked={on}
+            aria-label="Block YouTube thumbnails"
+            tabIndex={0}
+            title={on
+                ? 'Thumbnails hidden — click to show them'
+                : 'Thumbnails visible — click to hide them'}
+            onClick={toggle}
+            onKeyDown={onKeyDown}
+        >
+            {/* eye / eye-off icon: crossed-out when blocking is on */}
+            <svg className="tb-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                 strokeLinejoin="round" aria-hidden="true">
+                {on ? (
+                    <>
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                    </>
+                ) : (
+                    <>
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </>
+                )}
+            </svg>
+            <span className="tb-label">Thumbnails</span>
+            <span className="tb-switch" aria-hidden="true">
+                <span className="tb-knob"/>
+            </span>
         </div>
     )
 }
-

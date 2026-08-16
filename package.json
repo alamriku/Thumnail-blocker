@@ -9,6 +9,9 @@
   },
   "scripts": {
     "build": "node utils/build.js",
+    "build:chrome": "node utils/build.js",
+    "build:firefox": "TARGET=firefox node utils/build.js",
+    "zip:firefox": "npm run build:firefox && cd build-firefox && find . -name '.DS_Store' -delete && COPYFILE_DISABLE=1 zip -rX ../thumb-blocker-firefox.zip . -x '.*'",
     "start": "node utils/webserver.js",
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },

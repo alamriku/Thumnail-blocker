@@ -1,0 +1,127 @@
+:root {
+    --pp-bg: #ffffff;
+    --pp-text: #0f0f0f;
+    --pp-sub: #606060;
+    --pp-row: #f2f2f2;
+    --pp-row-hover: #e9e9e9;
+    --pp-track: #c4c4c4;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --pp-bg: #212121;
+        --pp-text: #f1f1f1;
+        --pp-sub: #aaaaaa;
+        --pp-row: #383838;
+        --pp-row-hover: #454545;
+        --pp-track: #717171;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+}
+
+.pp {
+    width: 280px;
+    padding: 16px;
+    font-family: "Roboto", "Arial", sans-serif;
+    background: var(--pp-bg);
+    color: var(--pp-text);
+}
+
+.pp-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.pp-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--pp-row);
+    color: var(--pp-sub);
+}
+.pp-logo.on {
+    background: rgba(43, 166, 64, 0.15);
+    color: #2ba640;
+}
+.pp-logo svg {
+    width: 22px;
+    height: 22px;
+}
+.pp-titles {
+    min-width: 0;
+}
+.pp-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+}
+.pp-sub {
+    font-size: 12px;
+    color: var(--pp-sub);
+    line-height: 16px;
+}
+
+.pp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: var(--pp-row);
+    color: var(--pp-text);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    transition: background 0.15s ease;
+}
+.pp-row:hover {
+    background: var(--pp-row-hover);
+}
+
+.pp-switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex: 0 0 auto;
+    border-radius: 13px;
+    background: var(--pp-track);
+    transition: background 0.2s ease;
+}
+.pp-row.on .pp-switch {
+    background: #2ba640;
+}
+.pp-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease;
+}
+.pp-row.on .pp-knob {
+    transform: translateX(18px);
+}
+
+.pp-note {
+    margin-top: 12px;
+    font-size: 11px;
+    line-height: 15px;
+    color: var(--pp-sub);
+}

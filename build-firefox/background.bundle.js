@@ -1,0 +1,1 @@
+(()=>{"use strict";chrome.tabs.onUpdated.addListener(((e,o,s)=>{console.log(o,s)}))})();
